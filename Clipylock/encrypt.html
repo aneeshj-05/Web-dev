@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClipyLock - Encrypt</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Encrypt Text</h1>
+    <p>Secure your sensitive text with a passkey</p>
+
+    <textarea id="inputText" placeholder="Enter your text here..."></textarea>
+    <input type="password" id="passkeyEncrypt" placeholder="Enter passkey" />
+    <button onclick="encryptText()">Encrypt</button>
+
+    <textarea id="encryptedOutput" readonly placeholder="Encrypted string will appear here..."></textarea>
+    <button onclick="copyEncrypted()">Copy Encrypted</button>
+    <br><br>
+    <a href="index.html">⬅️ Back to Home</a>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

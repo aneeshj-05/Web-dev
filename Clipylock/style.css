@@ -1,0 +1,161 @@
+/* style.css - Updated with elegant #5C4F6E, #B3A8C9, and #1E1A2E palette */
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;600;700&display=swap');
+
+:root {
+  --primary-color: #5C4F6E;
+  --secondary-color: #B3A8C9;
+  --background-color: #1E1A2E;
+  --text-color: #1E1A2E;
+  --border-color: #888;
+  --input-text-color: #B3A8C9;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Fira Sans', sans-serif;
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(to right, var(--primary-color) 25%, var(--background-color) 25% 75%, var(--primary-color) 75%);
+}
+
+.container {
+  background-color: var(--background-color);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 1000px;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: 5rem;
+  margin-bottom: 0.5rem;
+  color: var(--secondary-color);
+  font-weight: 700;
+}
+
+.tagline {
+  font-size: 1.2rem;
+  font-style: italic;
+  color: var(--secondary-color);
+  margin-bottom: 2rem;
+}
+
+p {
+  font-size: 1.2rem;
+  color: var(--secondary-color);
+  margin-bottom: 3rem;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.card {
+  background: var(--primary-color);
+  border: 2px solid var(--secondary-color);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 300px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 0 0 transparent;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px var(--secondary-color);
+}
+
+.card h2 {
+  font-size: 1.8rem;
+  color: var(--background-color);
+  margin-bottom: 0.75rem;
+}
+
+.card p {
+  color: var(--background-color);
+  font-size: 1rem;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+textarea, input[type="password"] {
+  width: 100%;
+  padding: 1rem;
+  margin: 1rem 0;
+  background-color: var(--primary-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--input-text-color);
+  resize: vertical;
+  font-size: 1rem;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.4);
+  box-sizing: border-box;
+}
+
+button {
+  background-color: var(--secondary-color);
+  color: var(--background-color);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background-color: #9e91b3;
+  transform: scale(1.05);
+}
+
+a.back-link {
+  display: inline-block;
+  margin-top: 2rem;
+  color: var(--secondary-color);
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+a.back-link:hover {
+  color: #9e91b3;
+}
+
+@media screen and (max-width: 600px) {
+  h1 {
+    font-size: 3rem;
+  }
+
+  .card {
+    width: 90%;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  .options {
+    gap: 1.5rem;
+  }
+
+  .tagline {
+    font-size: 1rem;
+  }
+}
