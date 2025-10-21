@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow: Accessible To-Do App</title>
+    
+    <!-- Tailwind CSS for modern, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter for a clean UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom styles with the new color palette */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f5e9; /* A very light green for the background */
+        }
+
+        /* Clearer focus indicator for better keyboard navigation */
+        .focus-visible-ring {
+            outline: none;
+        }
+        .focus-visible-ring:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 118, 59, 0.7); /* Custom green ring */
+        }
+        
+        /* Style for completed tasks */
+        .completed-task label {
+            text-decoration: line-through;
+            color: #4C763B;
+            opacity: 0.7;
+        }
+
+        /* Style for the active filter button */
+        .filter-btn-active {
+            background-color: #4C763B; /* Medium green */
+            color: #FFFD8F; /* Light yellow text */
+        }
+        .filter-btn-active:hover {
+            background-color: #043915; /* Dark green */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
+        <main class="bg-white rounded-xl shadow-lg p-6 sm:p-8 border-2 border-[#4C763B]">
+            
+            <!-- Header section -->
+            <header class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-[#043915]">TaskFlow</h1>
+                <p class="text-[#4C763B] mt-2">Your daily productivity companion</p>
+            </header>
+
+            <!-- Form for adding new tasks -->
+            <form id="task-form" class="flex flex-col sm:flex-row gap-3 mb-6">
+                <label for="task-input" class="sr-only">Add a new task</label>
+                <input type="text" id="task-input" placeholder="e.g., Water the plants"
+                       class="flex-grow p-3 border border-gray-300 rounded-lg w-full focus:border-[#4C763B] focus-visible-ring"
+                       aria-describedby="form-help">
+                <button type="submit" 
+                        class="bg-[#4C763B] text-white font-semibold py-3 px-6 rounded-lg hover:bg-[#043915] transition-colors focus-visible-ring">
+                    Add Task
+                </button>
+                <p id="form-help" class="sr-only">Enter a task and press the Add Task button or the Enter key to add it to the list.</p>
+            </form>
+
+            <!-- Task filters -->
+            <div id="filter-container" class="flex items-center justify-center gap-2 mb-6" role="toolbar" aria-label="Task filters">
+                <button data-filter="all" class="filter-btn filter-btn-active font-medium py-2 px-4 rounded-lg transition-colors hover:bg-[#B0CE88]/50 focus-visible-ring">All</button>
+                <button data-filter="active" class="filter-btn text-[#4C763B] font-medium py-2 px-4 rounded-lg transition-colors hover:bg-[#B0CE88]/50 focus-visible-ring">Active</button>
+                <button data-filter="completed" class="filter-btn text-[#4C763B] font-medium py-2 px-4 rounded-lg transition-colors hover:bg-[#B0CE88]/50 focus-visible-ring">Completed</button>
+            </div>
+
+            <!-- Task list -->
+            <ul id="task-list" class="space-y-3" aria-live="polite" aria-atomic="true">
+                <!-- Task items will be dynamically inserted here -->
+            </ul>
+            
+             <!-- Empty state message -->
+            <div id="empty-state" class="text-center py-8 px-4 text-gray-500 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-[#B0CE88]" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <h3 class="mt-2 text-sm font-semibold text-[#043915]">No tasks here</h3>
+                <p class="mt-1 text-sm text-[#4C763B]">Add a new task to get started!</p>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM element references
+            const taskForm = document.getElementById('task-form');
+            const taskInput = document.getElementById('task-input');
+            const taskList = document.getElementById('task-list');
+            const filterContainer = document.getElementById('filter-container');
+            const emptyState = document.getElementById('empty-state');
+
+            // Application state
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            let currentFilter = 'all';
+
+            // --- CORE FUNCTIONS ---
+
+            /**
+             * Saves the current tasks array to localStorage.
+             */
+            const saveTasks = () => {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+            };
+
+            /**
+             * Renders the tasks to the DOM based on the current filter.
+             */
+            const renderTasks = () => {
+                taskList.innerHTML = '';
+                
+                const filteredTasks = tasks.filter(task => {
+                    if (currentFilter === 'active') return !task.completed;
+                    if (currentFilter === 'completed') return task.completed;
+                    return true; // 'all'
+                });
+
+                if (filteredTasks.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    if (currentFilter === 'active') {
+                        emptyState.querySelector('h3').textContent = 'No active tasks';
+                        emptyState.querySelector('p').textContent = 'Great job staying on top of things!';
+                    } else if (currentFilter === 'completed') {
+                        emptyState.querySelector('h3').textContent = 'No completed tasks';
+                         emptyState.querySelector('p').textContent = 'Complete a task to see it here.';
+                    } else {
+                        emptyState.querySelector('h3').textContent = 'No tasks here';
+                        emptyState.querySelector('p').textContent = 'Add a new task to get started!';
+                    }
+                } else {
+                    emptyState.classList.add('hidden');
+                }
+
+                filteredTasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.className = `flex items-center justify-between p-4 bg-[#FFFD8F]/30 rounded-lg transition-all duration-300 ${task.completed ? 'completed-task' : ''}`;
+                    li.setAttribute('data-id', task.id);
+
+                    li.innerHTML = `
+                        <div class="flex items-center gap-3 flex-grow">
+                            <input type="checkbox" id="task-${task.id}" class="h-5 w-5 rounded border-gray-300 text-[#4C763B] focus:ring-[#4C763B] focus-visible-ring" ${task.completed ? 'checked' : ''}>
+                            <label for="task-${task.id}" class="text-[#043915] flex-grow">${task.text}</label>
+                            <input type="text" class="hidden w-full p-1 border rounded" value="${task.text}">
+                        </div>
+                        <div class="flex items-center gap-2 ml-4">
+                            <button class="edit-btn p-2 text-[#4C763B] hover:text-[#043915] transition-colors focus-visible-ring rounded-full" aria-label="Edit task: ${task.text}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                            </button>
+                            <button class="delete-btn p-2 text-[#4C763B] hover:text-red-500 transition-colors focus-visible-ring rounded-full" aria-label="Delete task: ${task.text}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
+                            </button>
+                        </div>
+                    `;
+                    taskList.appendChild(li);
+                });
+                
+                updateFilterButtons();
+            };
+            
+            /**
+             * Updates the visual state of filter buttons.
+             */
+            const updateFilterButtons = () => {
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    if(btn.dataset.filter === currentFilter) {
+                        btn.classList.add('filter-btn-active');
+                        btn.setAttribute('aria-pressed', 'true');
+                    } else {
+                        btn.classList.remove('filter-btn-active');
+                        btn.setAttribute('aria-pressed', 'false');
+                    }
+                });
+            };
+
+            // --- EVENT HANDLERS ---
+
+            /**
+             * Handles form submission to add a new task.
+             */
+            const handleAddTask = (e) => {
+                e.preventDefault();
+                const text = taskInput.value.trim();
+                if (text) {
+                    const newTask = {
+                        id: Date.now(),
+                        text: text,
+                        completed: false
+                    };
+                    tasks.unshift(newTask); // Add new tasks to the top
+                    saveTasks();
+                    renderTasks();
+                    taskInput.value = '';
+                    taskInput.focus();
+                }
+            };
+            
+            /**
+             * Handles clicks within the task list for actions like complete, edit, delete.
+             */
+            const handleTaskListClick = (e) => {
+                const target = e.target;
+                const li = target.closest('li');
+                if (!li) return;
+
+                const taskId = Number(li.dataset.id);
+
+                // Toggle task completion
+                if (target.matches('input[type="checkbox"]')) {
+                    const task = tasks.find(t => t.id === taskId);
+                    task.completed = !task.completed;
+                    saveTasks();
+                    renderTasks();
+                }
+
+                // Delete task
+                if (target.closest('.delete-btn')) {
+                    tasks = tasks.filter(t => t.id !== taskId);
+                    saveTasks();
+                    renderTasks();
+                }
+
+                // Edit task
+                if (target.closest('.edit-btn')) {
+                    enterEditMode(li);
+                }
+            };
+
+            /**
+             * Handles filter button clicks.
+             */
+            const handleFilterClick = (e) => {
+                const target = e.target.closest('.filter-btn');
+                if(target) {
+                    currentFilter = target.dataset.filter;
+                    renderTasks();
+                }
+            };
+
+            /**
+             * Enables editing mode for a task item.
+             */
+            const enterEditMode = (li) => {
+                const label = li.querySelector('label');
+                const input = li.querySelector('input[type="text"]');
+                
+                label.classList.add('hidden');
+                input.classList.remove('hidden');
+                input.focus();
+                input.select();
+
+                const saveEdit = () => {
+                    const newText = input.value.trim();
+                    const taskId = Number(li.dataset.id);
+                    const task = tasks.find(t => t.id === taskId);
+
+                    if (newText && newText !== task.text) {
+                        task.text = newText;
+                        saveTasks();
+                    }
+                    renderTasks(); // Re-render to exit edit mode and show updated text
+                };
+                
+                input.addEventListener('blur', saveEdit, { once: true });
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        saveEdit();
+                    } else if (e.key === 'Escape') {
+                        // Cancel edit by just re-rendering
+                        renderTasks();
+                    }
+                });
+            };
+
+            // --- INITIALIZATION ---
+
+            // Attach event listeners
+            taskForm.addEventListener('submit', handleAddTask);
+            taskList.addEventListener('click', handleTaskListClick);
+            filterContainer.addEventListener('click', handleFilterClick);
+            
+            // Initial render on page load
+            renderTasks();
+        });
+    </script>
+</body>
+</html>
+
