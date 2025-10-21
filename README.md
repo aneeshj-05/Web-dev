@@ -1,6 +1,6 @@
-# 💻 Frontend Projects Collection
+# 💻 Web-Development Projects Collection
 
-Welcome to my personal repository of **Frontend Web Development Projects**!
+Welcome to my personal repository of ** Web Development Projects**!
 
 This space serves as a collection of handcrafted frontend applications built using **HTML**, **CSS**, and **JavaScript**, exploring concepts like:
 - UI/UX design
